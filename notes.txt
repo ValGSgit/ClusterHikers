@@ -1,0 +1,75 @@
+1. Add your ssh.public key to the juelich site.
+2. Wait for the databse to add you
+3. Then 'ssh -i ~/ssh/id_ed25519 usernam@jureca.fz-juelich.de'
+4. Then configure ssh connection in VS code, make a config file in your .ssh folder with this fields:
+ '"
+	Host juelich #This is fine
+ 	 Hostname jureca.fz-juelich.de #Address of the compute nodes
+ 	 User garciasusini1 #Your username
+ 	 IdentityFile /User/adam/.ssh/id_ed25519 #Path to your ssh key
+ 	 MACs hmac-sha2-256-etm@openssh.com # If youre on windows use this to have no issues
+ "'
+5. Then open terminal and activate project using:
+  ' jutil env activate -p 'trainingID' #Our specific group name and number
+  cd $PROJECT
+  mkdir $USER
+  chown $USER:$USER $USER
+  chmod o-r $USER
+6. Clone hackathon repo for examples and usage of their API and SSK
+ do 'git clone https://github.com/sprintml/Hackathon.git'
+7. Test the sample submission when we get our API key at the start of the event
+8. Installing dependencies:
+	'curl -LsSf https://astral.sh/uv/install.sh | sh'
+  Configure UV to set PATH with:
+	'cat << EOF >> ~/.bashrc
+	 export UV_PYTHON_INSTALL_DIR=$PROJECT/$USER/uv/python
+	 export UV_CACHE_DIR=$PROJECT/$USER/uv/cache
+	 export UV_TOOL_DIR=$PROJECT/$USER/uv/tools
+	 EOF'
+	 
+  or: 
+  
+  'vim ~/.bashrc' then copy and paste this three:
+  'export UV_PYTHON_INSTALL_DIR=$PROJECT/$USER/uv/python
+   export UV_CACHE_DIR=$PROJECT/$USER/uv/cache
+   export UV_TOOL_DIR=$PROJECT/$USER/uv/tools'
+9. Extra commands for the terminal:
+	'exec bash #enable the new env with the paths for uv
+	 cd $PROJECT/$USER/Hackathon
+	 uv init -p 3.12
+	 uv add torch torchvision
+	 uv add requests
+	 uv add pandas
+	 source .venv/bin/activate
+	 #execute sample script
+	 python main.py'
+	 
+10. Make the submission script:
+
+#!/bin/bash
+#SBATCH --acount=trainingID #Change for actual project name
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --gres=gpu:1
+#SBATCH --cou-per-task=128
+#SBATCH --partition=dc-gpu-devel
+#SBATCH --output=output/%j.out
+#SBATCH --reservation=cispahack
+
+# export MASTER_ADDR="$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -1)"
+# export MASTER_ADDR="$MASTER_ADDR"i
+# Go to the folder that has the sample_submission.py
+cd $PROJECT/$USER/Hackathon
+
+#Activate the env from here
+source .venv/bin/activate
+
+#Run the file
+srun python sample_submission.py
+
+echo "done!"
+
+11. For submission use 'sbatch main.sh' and to see the logs use 'cat output/log_number_here.out'
+
+12. TIP: Learn about UV, sbatch and slurm to know how to run the jobs
+
