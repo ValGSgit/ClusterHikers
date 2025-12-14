@@ -198,8 +198,8 @@ print(submission_df.head())
 # SUBMISSION PROCESS
 # --------------------------------
 
-BASE_URL  = "http://35.192.205.84:80"
-API_KEY   = "9caa40f243393bb4800d686906262257"
+BASE_URL  = "http://f.u.c.k:42069"
+API_KEY   = ""
 
 TASK_ID   = "06-dataset-inference-vision"
 FILE_PATH = output_file
